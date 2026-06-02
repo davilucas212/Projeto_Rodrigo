@@ -1,0 +1,160 @@
+﻿using Projeto_Rodrigo.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Data.SqlClient;
+using System.Text;
+
+namespace Projeto_Rodrigo.Services
+{
+    public class SalaService
+    {
+        private string connectionString =
+            "Server=(localdb)\\mssqllocaldb;" +
+            "Database=reunioes;" +
+            "Trusted_Connection=true";
+
+        public bool Criar(Sala sala, out List<ValidationResult> erros)
+        {
+            erros = new List<ValidationResult>();
+
+            if (!Validar(sala, out erros))
+            {
+                return false;
+            }
+
+            var comando =
+                @"INSERT INTO salas(nome, andar, quantidadeassentos)
+                  VALUES(@Nome, @Andar, @QuantidadeAssentos)";
+
+            var conexao = new SqlConnection(connectionString);
+
+            conexao.Open();
+
+            var sqlCommand = new SqlCommand(comando, conexao);
+
+            sqlCommand.Parameters.Add("@Nome", SqlDbType.Text).Value = sala.Nome;
+
+            sqlCommand.Parameters.Add("@Andar", SqlDbType.Int).Value = sala.Andar;
+
+            sqlCommand.Parameters.Add("@QuantidadeAssentos", SqlDbType.Int)
+                .Value = sala.QuantidadeAssentos;
+
+            sqlCommand.ExecuteNonQuery();
+
+            conexao.Close();
+
+            return true;
+        }
+
+        public bool Validar(Sala sala, out List<ValidationResult> erros)
+        {
+            var contexto = new ValidationContext(sala);
+
+            erros = new List<ValidationResult>();
+
+            return Validator.TryValidateObject(
+                sala,
+                contexto,
+                erros,
+                true
+            );
+        }
+
+        public List<Sala> Listar(int numeroPagina)
+        {
+            var lista = new List<Sala>();
+
+            int itensPorPagina = 10;
+            int pularItens = (numeroPagina - 1) * itensPorPagina;
+
+            var comando =
+                @"SELECT id, nome, andar, quantidadeassentos
+          FROM salas
+          ORDER BY andar
+          OFFSET @PularItens ROWS
+          FETCH NEXT @ItensPorPagina ROWS ONLY";
+
+            var conexao = new SqlConnection(connectionString);
+
+            conexao.Open();
+
+            var sqlCommand = new SqlCommand(comando, conexao);
+
+            sqlCommand.Parameters.Add("@PularItens", SqlDbType.Int).Value = pularItens;
+            sqlCommand.Parameters.Add("@ItensPorPagina", SqlDbType.Int).Value = itensPorPagina;
+
+            var leitor = sqlCommand.ExecuteReader();
+
+            while (leitor.Read())
+            {
+                var sala = new Sala
+                {
+                    Id = leitor.GetInt32(0),
+                    Nome = leitor.GetString(1),
+                    Andar = leitor.GetInt32(2),
+                    QuantidadeAssentos = leitor.GetInt32(3)
+                };
+
+                lista.Add(sala);
+            }
+
+            conexao.Close();
+
+            return lista;
+        }
+        public Sala Buscar(int id)
+        {
+            Sala sala = null;
+
+            var comando =
+                @"SELECT id, nome, andar, quantidadeassentos
+                  FROM salas
+                  WHERE id = @Id";
+
+            var conexao = new SqlConnection(connectionString);
+
+            conexao.Open();
+
+            var sqlCommand = new SqlCommand(comando, conexao);
+
+            sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
+            var leitor = sqlCommand.ExecuteReader();
+
+            if (leitor.Read())
+            {
+                sala = new Sala
+                {
+                    Id = leitor.GetInt32(0),
+                    Nome = leitor.GetString(1),
+                    Andar = leitor.GetInt32(2),
+                    QuantidadeAssentos = leitor.GetInt32(3)
+                };
+            }
+
+            conexao.Close();
+
+            return sala;
+        }
+
+        public void Excluir(int id)
+        {
+            var comando = "DELETE FROM salas WHERE id = @Id";
+
+            var conexao = new SqlConnection(connectionString);
+
+            conexao.Open();
+
+            var sqlCommand = new SqlCommand(comando, conexao);
+
+            sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+
+            sqlCommand.ExecuteNonQuery();
+
+            conexao.Close();
+        }
+    }
+}
+
