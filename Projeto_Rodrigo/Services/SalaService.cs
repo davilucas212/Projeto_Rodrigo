@@ -139,6 +139,41 @@ namespace Projeto_Rodrigo.Services
             return sala;
         }
 
+        public bool Atualizar(Sala sala, out List<ValidationResult> erros)
+        {
+            erros = new List<ValidationResult>();
+
+            if (!Validar(sala, out erros))
+            {
+                return false;
+            }
+
+            var comando =
+                @"UPDATE salas
+          SET nome = @Nome,
+              andar = @Andar,
+              quantidadeassentos = @QuantidadeAssentos
+          WHERE id = @Id";
+
+            var conexao = new SqlConnection(connectionString);
+
+            conexao.Open();
+
+            var sqlCommand = new SqlCommand(comando, conexao);
+
+            sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = sala.Id;
+            sqlCommand.Parameters.Add("@Nome", SqlDbType.Text).Value = sala.Nome;
+            sqlCommand.Parameters.Add("@Andar", SqlDbType.Int).Value = sala.Andar;
+            sqlCommand.Parameters.Add("@QuantidadeAssentos", SqlDbType.Int)
+                .Value = sala.QuantidadeAssentos;
+
+            sqlCommand.ExecuteNonQuery();
+
+            conexao.Close();
+
+            return true;
+        }
+
         public void Excluir(int id)
         {
             var comando = "DELETE FROM salas WHERE id = @Id";

@@ -17,11 +17,12 @@ while (true)
     Console.WriteLine("2 - Listar Salas");
     Console.WriteLine("3 - Buscar Sala");
     Console.WriteLine("4 - Excluir Sala");
-    Console.WriteLine("5 - Criar Reserva");
-    Console.WriteLine("6 - Listar Reservas");
-    Console.WriteLine("7 - Buscar Reserva");
-    Console.WriteLine("8 - Cancelar Reserva");
-    Console.WriteLine("0 - Sair");
+    Console.WriteLine("5 - Atualizar Sala");
+    Console.WriteLine("6 - Criar Reserva");
+    Console.WriteLine("7 - Listar Reservas");
+    Console.WriteLine("8 - Buscar Reserva");
+    Console.WriteLine("9 - Cancelar Reserva");
+    Console.WriteLine("10 - Sair");
     Console.Write("\nOpção: ");
 
     var opcao = Console.ReadLine();
@@ -110,6 +111,43 @@ while (true)
 
         case "5":
             {
+                Console.Write("ID da sala: ");
+                int id = int.Parse(Console.ReadLine());
+
+                var sala = salaService.Buscar(id);
+
+                if (sala == null)
+                {
+                    Console.WriteLine("Sala não encontrada.");
+                    break;
+                }
+
+                Console.Write("Novo nome: ");
+                sala.Nome = Console.ReadLine();
+
+                Console.Write("Novo andar: ");
+                sala.Andar = int.Parse(Console.ReadLine());
+
+                Console.Write("Nova quantidade de assentos: ");
+                sala.QuantidadeAssentos = int.Parse(Console.ReadLine());
+
+                if (salaService.Atualizar(sala, out var erros))
+                {
+                    Console.WriteLine("Sala atualizada com sucesso!");
+                }
+                else
+                {
+                    foreach (var erro in erros)
+                    {
+                        Console.WriteLine(erro.ErrorMessage);
+                    }
+                }
+
+                break;
+            }
+
+        case "6":
+            {
                 var reserva = new Reserva();
 
                 Console.Write("ID da sala: ");
@@ -136,7 +174,7 @@ while (true)
                 break;
             }
 
-        case "6":
+        case "7":
             {
                 var reservas = reservaService.Listar(2);
 
@@ -150,7 +188,7 @@ while (true)
                 break;
             }
 
-        case "7":
+        case "8":
             {
                 Console.Write("ID da reserva: ");
                 int id = int.Parse(Console.ReadLine());
@@ -172,7 +210,7 @@ while (true)
                 break;
             }
 
-        case "8":
+        case "9":
             {
                 Console.Write("ID da reserva: ");
                 int id = int.Parse(Console.ReadLine());
@@ -183,7 +221,7 @@ while (true)
                 break;
             }
 
-        case "0":
+        case "10":
             {
                 return;
             }
