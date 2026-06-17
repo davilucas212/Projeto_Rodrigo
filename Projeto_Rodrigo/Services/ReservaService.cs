@@ -23,6 +23,12 @@ namespace Projeto_Rodrigo.Services
             {
                 erros = new List<ValidationResult>();
 
+               if(reserva.Inicio >= reserva.Fim && reserva.Inicio >= DateTime.Now)
+                {
+                    erros.Add(new ValidationResult("A data de início deve ser anterior à data de fim e ambas devem ser futuras."));
+                    return false;
+                }
+
                 if (!Validar(reserva, out erros))
                 {
                     return false;
