@@ -72,35 +72,34 @@ namespace Projeto_Rodrigo.Services
             var comando =
                 @"SELECT id, nome, andar, quantidadeassentos
           FROM salas
-          ORDER BY andar
+          ORDER BY andar ASC, nome ASC
           OFFSET @PularItens ROWS
           FETCH NEXT @ItensPorPagina ROWS ONLY";
 
-            var conexao = new SqlConnection(connectionString);
-
-            conexao.Open();
-
-            var sqlCommand = new SqlCommand(comando, conexao);
-
-            sqlCommand.Parameters.Add("@PularItens", SqlDbType.Int).Value = pularItens;
-            sqlCommand.Parameters.Add("@ItensPorPagina", SqlDbType.Int).Value = itensPorPagina;
-
-            var leitor = sqlCommand.ExecuteReader();
-
-            while (leitor.Read())
+            using (var conexao = new SqlConnection(connectionString))
             {
-                var sala = new Sala
+                conexao.Open();
+
+                var sqlCommand = new SqlCommand(comando, conexao);
+                sqlCommand.Parameters.Add("@PularItens", SqlDbType.Int).Value = pularItens;
+                sqlCommand.Parameters.Add("@ItensPorPagina", SqlDbType.Int).Value = itensPorPagina;
+
+                using (var leitor = sqlCommand.ExecuteReader())
                 {
-                    Id = leitor.GetInt32(0),
-                    Nome = leitor.GetString(1),
-                    Andar = leitor.GetInt32(2),
-                    QuantidadeAssentos = leitor.GetInt32(3)
-                };
+                    while (leitor.Read())
+                    {
+                        var sala = new Sala
+                        {
+                            Id = leitor.GetInt32(0),
+                            Nome = leitor.GetString(1),
+                            Andar = leitor.GetInt32(2),
+                            QuantidadeAssentos = leitor.GetInt32(3)
+                        };
 
-                lista.Add(sala);
+                        lista.Add(sala);
+                    }
+                }
             }
-
-            conexao.Close();
 
             return lista;
         }
