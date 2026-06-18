@@ -103,24 +103,24 @@ namespace Projeto_Rodrigo.Services
 
             return lista;
         }
-        public Sala Buscar(int id)
+        public Sala BuscarPorId(int id)
         {
             Sala sala = null;
 
-            var comando =
-                @"SELECT id, nome, andar, quantidadeassentos
-                  FROM salas
-                  WHERE id = @Id";
+            var comando = @"
+        SELECT id, nome, andar, quantidadeassentos
+        FROM salas
+        WHERE id = @Id";
 
-            var conexao = new SqlConnection(connectionString);
+            using var conexao = new SqlConnection(connectionString);
 
             conexao.Open();
 
-            var sqlCommand = new SqlCommand(comando, conexao);
+            using var sqlCommand = new SqlCommand(comando, conexao);
 
             sqlCommand.Parameters.Add("@Id", SqlDbType.Int).Value = id;
 
-            var leitor = sqlCommand.ExecuteReader();
+            using var leitor = sqlCommand.ExecuteReader();
 
             if (leitor.Read())
             {
@@ -133,10 +133,43 @@ namespace Projeto_Rodrigo.Services
                 };
             }
 
-            conexao.Close();
-
             return sala;
         }
+
+
+        public List<Sala> Buscar(string nome)
+        {
+            var salas = new List<Sala>();
+
+            var comando = @"
+        SELECT id, nome, andar, quantidadeassentos
+        FROM salas
+        WHERE nome LIKE @Nome";
+
+            using var conexao = new SqlConnection(connectionString);
+
+            conexao.Open();
+
+            using var sqlCommand = new SqlCommand(comando, conexao);
+
+            sqlCommand.Parameters.Add("@Nome", SqlDbType.VarChar).Value = $"%{nome}%";
+
+            using var leitor = sqlCommand.ExecuteReader();
+
+            while (leitor.Read())
+            {
+                salas.Add(new Sala
+                {
+                    Id = leitor.GetInt32(0),
+                    Nome = leitor.GetString(1),
+                    Andar = leitor.GetInt32(2),
+                    QuantidadeAssentos = leitor.GetInt32(3)
+                });
+            }
+
+            return salas;
+        }
+
 
         public bool Atualizar(Sala sala, out List<ValidationResult> erros)
         {

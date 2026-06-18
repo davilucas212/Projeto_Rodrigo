@@ -75,24 +75,27 @@ while (true)
 
                 break;
             }
-
         case "3":
             {
-                Console.Write("ID da sala: ");
-                int id = int.Parse(Console.ReadLine());
+                Console.Write("Nome da sala: ");
+                string nome = Console.ReadLine();
 
-                var sala = salaService.Buscar(id);
+                var salas = salaService.Buscar(nome);
 
-                if (sala == null)
+                if (salas.Count == 0)
                 {
-                    Console.WriteLine("Sala não encontrada.");
+                    Console.WriteLine("Nenhuma sala encontrada.");
                 }
                 else
                 {
-                    Console.WriteLine($"Id: {sala.Id}");
-                    Console.WriteLine($"Nome: {sala.Nome}");
-                    Console.WriteLine($"Andar: {sala.Andar}");
-                    Console.WriteLine($"Assentos: {sala.QuantidadeAssentos}");
+                    foreach (var sala in salas)
+                    {
+                        Console.WriteLine("------------------");
+                        Console.WriteLine($"Id: {sala.Id}");
+                        Console.WriteLine($"Nome: {sala.Nome}");
+                        Console.WriteLine($"Andar: {sala.Andar}");
+                        Console.WriteLine($"Assentos: {sala.QuantidadeAssentos}");
+                    }
                 }
 
                 break;
@@ -114,7 +117,7 @@ while (true)
                 Console.Write("ID da sala: ");
                 int id = int.Parse(Console.ReadLine());
 
-                var sala = salaService.Buscar(id);
+                var sala = salaService.BuscarPorId(id);
 
                 if (sala == null)
                 {
