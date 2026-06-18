@@ -34,6 +34,26 @@ namespace Projeto_Rodrigo.Services
                     return false;
                 }
 
+
+
+                if (reserva.Inicio.TimeOfDay < new TimeSpan(8, 0, 0) ||
+                    reserva.Inicio.TimeOfDay > new TimeSpan(19, 0, 0))
+                {
+                    erros.Add(new ValidationResult(
+                        "O horário de início deve estar entre 08:00 e 19:00."));
+                }
+
+                if (reserva.Fim.TimeOfDay < new TimeSpan(8, 0, 0) ||
+                    reserva.Fim.TimeOfDay > new TimeSpan(19, 0, 0))
+                {
+                    erros.Add(new ValidationResult(
+                        "O horário de término deve estar entre 08:00 e 19:00."));
+                }
+
+
+
+
+
                 var comando =
                     @"INSERT INTO reservas(inicio, fim, salaid)
                   VALUES(@Inicio, @Fim, @SalaId)";

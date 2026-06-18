@@ -17,7 +17,7 @@ namespace Projeto_Rodrigo.Models
             [Required]
             public DateTime Fim { get; set; }
 
-            [Range(1,10)]
+            [Range(1,200)]
             public int SalaId { get; set; }
 
             public Sala? Sala { get; set; }
